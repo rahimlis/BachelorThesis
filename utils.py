@@ -88,7 +88,7 @@ def convert_dataset_to_numpy_array(test_set=False, print_progress=True):
     dataset_Y = None
     i = 0
     total = len(filenames)
-    for filename in filenames:
+    for filename, label in zip(filenames, labels):
 
         if print_progress:
             print("Converting " + filename + " " + str(i) + "/" + str(total))
