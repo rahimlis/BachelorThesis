@@ -90,8 +90,8 @@ def _get_examples_batch():
     [batch_size, num_classes] where each row is a multi-hot label vector that
     provides the labels for corresponding rows in features.
   """
-  # Make a waveform for each class.
-  num_seconds = 10
+  # Make a waveform for each class. 10 x96 x 64
+  num_seconds = 5
   sr = 44100  # Sampling rate.
   t = np.linspace(0, num_seconds, int(num_seconds * sr))  # Time axis.
   # Random sine wave.

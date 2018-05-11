@@ -77,6 +77,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE):
 
                 # Calculate accuracy
                 #accuracy = tf.metrics.accuracy(labels=labels, predictions=logits, name="acc")
+
                 #tf.summary.scalar('accuracy', accuracy)
                 #variable_summaries(accuracy)
 
@@ -136,8 +137,8 @@ def train(filenames, file_labels, num_epochs=100, minibatch_size=params.BATCH_SI
             minibatches = utils.make_random_batches(filenames, file_labels, minibatch_size)
 
             # for minibatch in minibatches:
-            for i in range(3):
-                filenames_batch, labels_batch = minibatches[i]
+            for minibatch in minibatches:
+                filenames_batch, labels_batch = minibatch
                 minibatch_X, minibatch_Y = utils.load_data(filenames_batch, labels_batch)
                 [summary_str, num_steps, loss, _] = sess.run(
                     [summary, global_step_tensor, loss_tensor, train_op],
@@ -162,4 +163,4 @@ class_map, filenames, labels = utils.read_csv()
 
 _, test_filenames, test_labels = utils.read_csv(test_set=True)
 
-prediction_op = train(filenames, labels, 1)
+prediction_op = train(filenames, labels, 10)
