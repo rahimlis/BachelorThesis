@@ -82,6 +82,40 @@ def load_data(filenames_batch, labels_batch):
     return minibatch_X, minibatch_Y
 
 
+def convert_dataset_to_numpy_array(test_set=False, print_progress=True):
+    _, filenames, labels = read_csv(test_set=test_set)
+    dataset_X = None
+    dataset_Y = None
+    i = 0
+    total = len(filenames)
+    for filename in filenames:
+
+        if print_progress:
+            print("Converting " + filename + " " + str(i) + "/" + str(total))
+        i += 1
+
+        examples_of_wav_file = np.array(vggish_input.wavfile_to_examples(filename))
+
+        # Convert label to one-hot vector, and then repeat it
+        # for each sub-example created from vggish_input.wavfile_to_examples
+        label = np.repeat(convert_scalar_to_one_hot(label), examples_of_wav_file.shape[0], axis=0)
+
+        if dataset_X is not None:
+            dataset_X = np.append(dataset_X, examples_of_wav_file, axis=0)
+            dataset_Y = np.append(dataset_Y, label, axis=0)
+        else:
+            dataset_X = np.array(examples_of_wav_file)
+            dataset_Y = np.array(label)
+
+    save_to_file(dataset_X, params.TEST_DATA_FILE if test_set else params.TRAINING_DATA_FILE)
+    save_to_file(dataset_Y, params.TEST_LABELS_FILE if test_set else params.TRAINING_LABELS_FILE)
+
+
+def save_to_file(np_arr, path):
+    print("File saved on path: " + path)
+    np.save(path, np_arr)
+
+
 def convert_array_to_one_hot(Y, C):
     Y = np.eye(C)[Y.reshape(-1)]
     return Y
