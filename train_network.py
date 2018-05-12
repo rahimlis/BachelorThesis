@@ -140,7 +140,6 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
             # for minibatch in minibatches:
             for minibatch in minibatches:
-
                 (minibatch_X, minibatch_Y) = minibatch
 
                 [summary_str, num_steps, loss, _] = sess.run(
@@ -153,9 +152,8 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g ' % (num_steps, loss))
 
-            if epoch % 5 == 0:
-                saver.save(sess, params.CHECKPOINT_FOLDER + "/checkpoint.ckpt", epoch)
-                print("Checkpoint saved")
+        saver.save(sess, params.CHECKPOINT_FOLDER + "/checkpoint.ckpt", num_steps)
+        print("Checkpoint saved")
 
         print("Training has finished!")
 
@@ -186,4 +184,4 @@ train_labels = np.load("dataset/train_labels_fold_" + str(test_fold) + ".npy")
 test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
 test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-train(train_data, train_labels, test_data, test_labels, test_fold, 1)
+train(train_data, train_labels, test_data, test_labels, test_fold, 50)
