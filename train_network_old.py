@@ -12,7 +12,7 @@ flags = tf.app.flags
 slim = tf.contrib.slim
 
 flags.DEFINE_boolean(
-    'train_vggish', True,
+    'train_vggish', False,
     'If Frue, allow VGGish parameters to change during training, thus '
     'fine-tuning VGGish. If False, VGGish parameters are fixed, thus using '
     'VGGish as a fixed feature extractor.')
@@ -76,10 +76,10 @@ def model(learning_rate=vggish_params.LEARNING_RATE):
                 variable_summaries(loss)
 
                 # Calculate accuracy
-                # accuracy = tf.metrics.accuracy(labels=labels, predictions=logits, name="acc")
+                #accuracy = tf.metrics.accuracy(labels=labels, predictions=logits, name="acc")
 
-                # tf.summary.scalar('accuracy', accuracy)
-                # variable_summaries(accuracy)
+                #tf.summary.scalar('accuracy', accuracy)
+                #variable_summaries(accuracy)
 
                 # We use the same optimizer and hyperparameters as used to train VGGish.
                 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=vggish_params.ADAM_EPSILON)
@@ -88,8 +88,8 @@ def model(learning_rate=vggish_params.LEARNING_RATE):
     return graph, prediction
 
 
-def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch_size=params.BATCH_SIZE):
-    m = X_train.shape[0]
+def train(filenames, file_labels, num_epochs=100, minibatch_size=params.BATCH_SIZE):
+    m = len(filenames)
 
     graph, prediction_op = model()
 
@@ -109,15 +109,14 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         global_step_tensor = sess.graph.get_tensor_by_name('mymodel/train/global_step:0')
         loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
         all_tensors = [n.name for n in tf.get_default_graph().as_graph_def().node]
-
-        # print(all_tensors)
-        # accuracy_tensor = sess.graph.get_tensor_by_name('mymodel/train/accuracy_0:0')
+        print(all_tensors)
+        #accuracy_tensor = sess.graph.get_tensor_by_name('mymodel/train/accuracy_0:0')
 
         train_op = sess.graph.get_operation_by_name('mymodel/train/train_op')
 
         # Init summary writer
         summary = tf.summary.merge_all()
-        summary_writer = tf.summary.FileWriter("./logs/train/fold_" + str(test_fold), sess.graph)
+        summary_writer = tf.summary.FileWriter("./logs/train/fold" + str(params.TEST_FOLD), sess.graph)
 
         # Init checkpoint saver
         saver = tf.train.Saver()
@@ -135,14 +134,12 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
             # number of minibatches of size minibatch_size in the train set
             num_minibatches = int(m / minibatch_size)
-
-            minibatches = utils.random_mini_batches(X_train, Y_train, minibatch_size)
+            minibatches = utils.make_random_batches(filenames, file_labels, minibatch_size)
 
             # for minibatch in minibatches:
             for minibatch in minibatches:
-
-                (minibatch_X, minibatch_Y) = minibatch
-
+                filenames_batch, labels_batch = minibatch
+                minibatch_X, minibatch_Y = utils.load_data(filenames_batch, labels_batch)
                 [summary_str, num_steps, loss, _] = sess.run(
                     [summary, global_step_tensor, loss_tensor, train_op],
                     feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
@@ -159,31 +156,11 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         print("Training has finished!")
 
-        try:
-            correct_prediction = tf.equal(prediction_op, tf.argmax(labels_tensor, 1))
-            # Calculate accuracy on the test set
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            print(accuracy)
-            train_accuracy = accuracy.eval({features_tensor: X_train, labels_tensor: Y_train})
-            test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
-            print("Train Accuracy:", train_accuracy)
-            print("Test Accuracy:", test_accuracy)
-
-        except Exception as e:
-            print(e)
+    return prediction_op
 
 
-# class_map, filenames, labels = utils.read_csv()
+class_map, filenames, labels = utils.read_csv()
 
-# _, test_filenames, test_labels = utils.read_csv(test_set=True)
+_, test_filenames, test_labels = utils.read_csv(test_set=True)
 
-
-test_fold = 1
-
-train_data = np.load("dataset/train_data_fold_" + str(test_fold) + ".npy")
-train_labels = np.load("dataset/train_labels_fold_" + str(test_fold) + ".npy")
-
-test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
-test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
-
-train(train_data, train_labels, test_data, test_labels, test_fold, 1)
+prediction_op = train(filenames, labels, 10)
