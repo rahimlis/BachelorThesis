@@ -92,10 +92,11 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
     return graph, prediction, softmax_prediction
 
 
-def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch_size=params.BATCH_SIZE):
+def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch_size=params.BATCH_SIZE,
+          save_checkpoint=True):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.07)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.06)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
@@ -127,13 +128,15 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         chekpoint = tf.train.latest_checkpoint(checkpoint_dir=params.CHECKPOINT_FOLDER + str(test_fold))
 
+        costs = []
+
         if chekpoint is not None:
             print("Checkpoint exists. Loading from disk..")
             saver.restore(sess, chekpoint)
 
         for epoch in range(num_epochs):
             minibatch_cost = 0.
-            print("Epoch: %d", epoch)
+            print("Epoch: %d" % epoch)
             # number of minibatches of size minibatch_size in the train set
             num_minibatches = int(m / minibatch_size)
 
@@ -151,25 +154,19 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 summary_writer.flush()
 
                 minibatch_cost += loss / num_minibatches
-                print('Step %d: loss %g ' % (num_steps, loss))
+                print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
-        saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
-        print("Checkpoint saved")
+            costs.append(minibatch_cost)
+
+            avg = sum(costs) / float(len(costs))
+
+            print("Average cost: %avg" % avg)
+
+        if save_checkpoint:
+            saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
+            print("Checkpoint saved")
 
         print("Training has finished!")
-
-        # try:
-        #     correct_prediction = tf.equal(prediction_op, tf.argmax(labels_tensor, 1))
-        #     # Calculate accuracy on the test set
-        #     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-        #     print(accuracy)
-        #     train_accuracy = accuracy.eval({features_tensor: X_train, labels_tensor: Y_train})
-        #     test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
-        #     print("Train Accuracy:", train_accuracy)
-        #     print("Test Accuracy:", test_accuracy)
-        #
-        # except Exception as e:
-        #     print(e)
 
 
 def main():
@@ -181,7 +178,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 50)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 70, save_checkpoint=False)
 
 
 if __name__ == '__main__':
