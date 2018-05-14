@@ -48,13 +48,14 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            fc = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=num_units,
-                                                   activation_fn=None)
+            # fc = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=num_units,
+            #                                        activation_fn=tf.nn.sigmoid)
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
+
             logits = tf.contrib.layers.fully_connected(
-                fc, params.NUM_CLASSES, activation_fn=None, scope='logits')
+                embeddings, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
@@ -96,7 +97,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
           save_checkpoint=True):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.06)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.001)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
@@ -160,7 +161,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
             avg = sum(costs) / float(len(costs))
 
-            print("Average cost: %avg" % avg)
+            print("Average cost: %g" % avg)
 
         if save_checkpoint:
             saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
@@ -178,7 +179,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 70, save_checkpoint=False)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 100, save_checkpoint=False)
 
 
 if __name__ == '__main__':
