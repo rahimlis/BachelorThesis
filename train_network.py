@@ -37,12 +37,12 @@ def variable_summaries(var):
         tf.summary.histogram('histogram', var)
 
 
-def model(learning_rate=vggish_params.LEARNING_RATE):
+def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish):
     graph = tf.Graph()
 
     with graph.as_default():
         # Define VGGish.
-        embeddings = vggish_slim.define_vggish_slim(FLAGS.train_vggish)
+        embeddings = vggish_slim.define_vggish_slim(training)
 
         with tf.variable_scope("mymodel"):
             # Add a fully connected layer with 100 units.
@@ -55,7 +55,9 @@ def model(learning_rate=vggish_params.LEARNING_RATE):
             logits = slim.fully_connected(
                 fc, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
-            prediction = tf.argmax(logits, name='prediction')
+            prediction = tf.argmax(logits, axis=1, name='prediction')
+            softmax_prediction = tf.nn.softmax(logits, axis=1, name="softmax_prediction")
+            softmax_prediction = tf.nn.top_k(softmax_prediction, k=5)
 
             # Add training ops.
             with tf.variable_scope('train'):
@@ -85,13 +87,13 @@ def model(learning_rate=vggish_params.LEARNING_RATE):
                 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=vggish_params.ADAM_EPSILON)
                 optimizer.minimize(loss, global_step=global_step, name='train_op')
 
-    return graph, prediction
+    return graph, prediction, softmax_prediction
 
 
 def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch_size=params.BATCH_SIZE):
     m = X_train.shape[0]
 
-    graph, prediction_op = model()
+    graph, prediction_op, softmax_prediction = model()
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
@@ -124,7 +126,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         tf.global_variables_initializer().run()
 
-        chekpoint = tf.train.latest_checkpoint(checkpoint_dir=params.CHECKPOINT_FOLDER)
+        chekpoint = tf.train.latest_checkpoint(checkpoint_dir=params.CHECKPOINT_FOLDER + str(test_fold))
 
         if chekpoint is not None:
             print("Checkpoint exists. Loading from disk..")
@@ -152,7 +154,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g ' % (num_steps, loss))
 
-        saver.save(sess, params.CHECKPOINT_FOLDER + "/checkpoint.ckpt", num_steps)
+        saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
         print("Checkpoint saved")
 
         print("Training has finished!")
@@ -176,12 +178,17 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 # _, test_filenames, test_labels = utils.read_csv(test_set=True)
 
 
-test_fold = 1
+def main():
+    test_fold = 2
 
-train_data = np.load("dataset/train_data_fold_" + str(test_fold) + ".npy")
-train_labels = np.load("dataset/train_labels_fold_" + str(test_fold) + ".npy")
+    train_data = np.load("dataset/train_data_fold_" + str(test_fold) + ".npy")
+    train_labels = np.load("dataset/train_labels_fold_" + str(test_fold) + ".npy")
 
-test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
-test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
+    test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
+    test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-train(train_data, train_labels, test_data, test_labels, test_fold, 50)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 50)
+
+
+if __name__ == '__main__':
+    main()
