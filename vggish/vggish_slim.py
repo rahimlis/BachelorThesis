@@ -69,6 +69,12 @@ def define_vggish_slim(training=False):
                       biases_initializer=tf.zeros_initializer(),
                       activation_fn=tf.nn.relu,
                       trainable=training), \
+       slim.arg_scope([slim.fully_connected],
+                      weights_initializer=tf.truncated_normal_initializer(
+                          stddev=params.INIT_STDDEV),
+                      biases_initializer=tf.zeros_initializer(),
+                      activation_fn=tf.nn.relu,
+                      trainable=True), \
        slim.arg_scope([slim.conv2d],
                       kernel_size=[3, 3], stride=1, padding='SAME'), \
        slim.arg_scope([slim.max_pool2d],
