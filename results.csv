@@ -1,2 +1,3 @@
-learning_rate,num_steps,cost,batch_size,num_outputs,vggish_kept
-0.05,3150,3.55288,128,100,True
+learning_rate,num_steps,epochs,cost,batch_size,num_outputs,vggish_kept
+0.05,3150,50,3.55288,128,100,True
+0.06,3150,50,3.34557,128,100,True

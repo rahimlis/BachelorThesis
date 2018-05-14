@@ -95,7 +95,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
 def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch_size=params.BATCH_SIZE):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.06)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.07)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
@@ -133,7 +133,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         for epoch in range(num_epochs):
             minibatch_cost = 0.
-
+            print("Epoch: %d", epoch)
             # number of minibatches of size minibatch_size in the train set
             num_minibatches = int(m / minibatch_size)
 
