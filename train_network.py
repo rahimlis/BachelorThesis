@@ -163,9 +163,9 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
             print("Average cost: %g" % avg)
 
-        if save_checkpoint:
-            saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
-            print("Checkpoint saved")
+            if save_checkpoint and epoch % 100 == 0:
+                saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
+                print("Checkpoint saved")
 
         print("Training has finished!")
 
@@ -179,7 +179,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 100, save_checkpoint=False)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 500)
 
 
 if __name__ == '__main__':
