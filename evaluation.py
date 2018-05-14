@@ -18,8 +18,6 @@ def calculate_accuracy(checkpoint, test_fold):
 
         model_vars = [v for v in tf.global_variables() if v.name in model_var_names]
 
-        # print(model_vars)
-
         # Use a Saver to restore just the variables selected above.
         saver = tf.train.Saver(model_vars, name='model_load_pretrained',
                                write_version=1)
@@ -38,7 +36,8 @@ def calculate_accuracy(checkpoint, test_fold):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
         test_accuracy = accuracy.eval({features_tensor: test_data, labels_tensor: test_labels})
-        # test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
+        # train_accuracy = accuracy.eval({features_tensor: train_data, labels_tensor: train_labels})
+
         # print("Train Accuracy:", train_accuracy)
 
         print("Test Accuracy:", test_accuracy)
@@ -92,6 +91,6 @@ def format_top5(class_map, top5):
     return result_dicts
 
 
-# calculate_accuracy("/checkpoint.ckpt-12500", 1)
+calculate_accuracy("/checkpoint.ckpt-12500", 1)
 
-argmax, top5 = make_prediction("esc50/audio/1-61261-A-44.wav", "/checkpoint.ckpt-12500", 1)
+# argmax, top5 = make_prediction("esc50/audio/1-61261-A-44.wav", "/checkpoint.ckpt-12500", 1)
