@@ -11,6 +11,7 @@ import params
 flags = tf.app.flags
 slim = tf.contrib.slim
 
+
 flags.DEFINE_boolean(
     'train_vggish', True,
     'If Frue, allow VGGish parameters to change during training, thus '
@@ -112,8 +113,6 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
         all_tensors = [n.name for n in tf.get_default_graph().as_graph_def().node]
 
-        # print(all_tensors)
-        # accuracy_tensor = sess.graph.get_tensor_by_name('mymodel/train/accuracy_0:0')
 
         train_op = sess.graph.get_operation_by_name('mymodel/train/train_op')
 
@@ -179,7 +178,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
 
 def main():
-    test_fold = 2
+    test_fold = 1
 
     train_data = np.load("dataset/train_data_fold_" + str(test_fold) + ".npy")
     train_labels = np.load("dataset/train_labels_fold_" + str(test_fold) + ".npy")
