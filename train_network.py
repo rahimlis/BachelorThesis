@@ -47,7 +47,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
 
         with tf.variable_scope("mymodel"):
             # Add a fully connected layer with 100 units.
-            num_units = 100
+            num_units = 32
 
             fc = slim.fully_connected(embeddings, num_units)
 
@@ -55,6 +55,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # classifiers, one per class. This allows for multi-class tasks.
             logits = slim.fully_connected(
                 fc, params.NUM_CLASSES, activation_fn=None, scope='logits')
+
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
