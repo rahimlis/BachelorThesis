@@ -13,7 +13,7 @@ slim = tf.contrib.slim
 
 
 flags.DEFINE_boolean(
-    'train_vggish', True,
+    'train_vggish', False,
     'If Frue, allow VGGish parameters to change during training, thus '
     'fine-tuning VGGish. If False, VGGish parameters are fixed, thus using '
     'VGGish as a fixed feature extractor.')
@@ -57,6 +57,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
                 fc, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
+
             softmax_prediction = tf.nn.softmax(logits, axis=1, name="softmax_prediction")
             softmax_prediction = tf.nn.top_k(softmax_prediction, k=5)
 
@@ -158,18 +159,18 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         print("Training has finished!")
 
-        try:
-            correct_prediction = tf.equal(prediction_op, tf.argmax(labels_tensor, 1))
-            # Calculate accuracy on the test set
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            print(accuracy)
-            train_accuracy = accuracy.eval({features_tensor: X_train, labels_tensor: Y_train})
-            test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
-            print("Train Accuracy:", train_accuracy)
-            print("Test Accuracy:", test_accuracy)
-
-        except Exception as e:
-            print(e)
+        # try:
+        #     correct_prediction = tf.equal(prediction_op, tf.argmax(labels_tensor, 1))
+        #     # Calculate accuracy on the test set
+        #     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+        #     print(accuracy)
+        #     train_accuracy = accuracy.eval({features_tensor: X_train, labels_tensor: Y_train})
+        #     test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
+        #     print("Train Accuracy:", train_accuracy)
+        #     print("Test Accuracy:", test_accuracy)
+        #
+        # except Exception as e:
+        #     print(e)
 
 
 # class_map, filenames, labels = utils.read_csv()

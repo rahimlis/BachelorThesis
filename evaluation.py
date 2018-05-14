@@ -91,6 +91,6 @@ def format_top5(class_map, top5):
     return result_dicts
 
 
-calculate_accuracy("/checkpoint.ckpt-12500", 1)
+# calculate_accuracy("/checkpoint.ckpt-12500", 1)
 
-# argmax, top5 = make_prediction("esc50/audio/1-61261-A-44.wav", "/checkpoint.ckpt-12500", 1)
+argmax, top5 = make_prediction("esc50/audio/2-119161-C-8.wav", "/checkpoint.ckpt-12500", 1)
