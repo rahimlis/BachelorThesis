@@ -42,7 +42,7 @@ QUANTIZE_MAX_VAL = +2.0
 
 # Hyperparameters used in training.
 INIT_STDDEV = 0.01  # Standard deviation used to initialize weights.
-LEARNING_RATE = 1e-4  # Learning rate for the Adam optimizer.
+LEARNING_RATE = 1e-2  # Learning rate for the Adam optimizer.
 ADAM_EPSILON = 1e-8  # Epsilon for the Adam optimizer.
 
 # Names of ops, tensors, and features.
