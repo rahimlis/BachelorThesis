@@ -27,7 +27,10 @@ def calculate_accuracy(checkpoint, test_fold):
         saver.restore(sess, checkpoint_path)
 
         test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
+        train_data = np.load("dataset/train_data_fold_" + str(test_fold) + ".npy")
         test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
+        train_labels = np.load("dataset/train_labels_fold_" + str(test_fold) + ".npy")
+
         features_tensor = sess.graph.get_tensor_by_name(vggish_params.INPUT_TENSOR_NAME)
         labels_tensor = sess.graph.get_tensor_by_name('mymodel/train/labels:0')
 
@@ -36,11 +39,10 @@ def calculate_accuracy(checkpoint, test_fold):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
         test_accuracy = accuracy.eval({features_tensor: test_data, labels_tensor: test_labels})
-        # train_accuracy = accuracy.eval({features_tensor: train_data, labels_tensor: train_labels})
-
-        # print("Train Accuracy:", train_accuracy)
+        train_accuracy = accuracy.eval({features_tensor: train_data, labels_tensor: train_labels})
 
         print("Test Accuracy:", test_accuracy)
+        print("Train Accuracy:", train_accuracy)
 
 
 def make_prediction(wav_file, checkpoint, test_fold):
