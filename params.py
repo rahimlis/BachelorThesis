@@ -1,7 +1,7 @@
 TEST_FOLD = 1
 CLASS_LABELS_FILE = "esc50/meta/esc50.csv"
 PATH_TO_FILES = "esc50/audio/"
-BATCH_SIZE = 512
+BATCH_SIZE = 128
 NUM_CLASSES = 50
 
 CHECKPOINT_FOLDER = "checkpoints/fold_"

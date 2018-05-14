@@ -11,7 +11,6 @@ import params
 flags = tf.app.flags
 slim = tf.contrib.slim
 
-
 flags.DEFINE_boolean(
     'train_vggish', False,
     'If Frue, allow VGGish parameters to change during training, thus '
@@ -47,15 +46,15 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
 
         with tf.variable_scope("mymodel"):
             # Add a fully connected layer with 100 units.
-            num_units = 32
+            num_units = 100
 
-            fc = slim.fully_connected(embeddings, num_units)
+            fc = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=num_units,
+                                                   activation_fn=None)
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
-            logits = slim.fully_connected(
+            logits = tf.contrib.layers.fully_connected(
                 fc, params.NUM_CLASSES, activation_fn=None, scope='logits')
-
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
@@ -115,7 +114,6 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
         all_tensors = [n.name for n in tf.get_default_graph().as_graph_def().node]
 
-
         train_op = sess.graph.get_operation_by_name('mymodel/train/train_op')
 
         # Init summary writer
@@ -172,11 +170,6 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         #
         # except Exception as e:
         #     print(e)
-
-
-# class_map, filenames, labels = utils.read_csv()
-
-# _, test_filenames, test_labels = utils.read_csv(test_set=True)
 
 
 def main():
