@@ -84,8 +84,6 @@ def format_top5(class_map, top5):
         for cl, p in zip(predictions, probabilities):
             dict[class_map[cl]] = round(p, 6)
 
-        # result_dicts.append(str(dict))
-
         sorted_dict = sorted(dict.items(), key=operator.itemgetter(1), reverse=True)
 
         result_dicts.append(str(sorted_dict))
