@@ -95,7 +95,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
 def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch_size=params.BATCH_SIZE):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.05)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.06)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.

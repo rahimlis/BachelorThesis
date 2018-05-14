@@ -1,0 +1,2 @@
+learning_rate,num_steps,cost,batch_size,num_outputs,vggish_kept
+0.05,3150,3.55288,128,100,True
