@@ -5,11 +5,10 @@ import params
 from train_network import model
 from vggish import vggish_params
 
-
 parser = argparse.ArgumentParser(description='Read model and calculate accuracy on test set')
-parser.add_argument('checkpoint', type=str, help='Trained model checkpoint')
-parser.add_argument('tfold', type=int, help='Number of test fold')
-args = parser.parse_args()
+parser.add_argument('--checkpoint', type=str, help='Trained model checkpoint')
+parser.add_argument('--test_fold', type=int, help='Number of test fold')
+
 
 def calculate_accuracy(checkpoint, test_fold):
     graph, prediction, softmax_prediction = model(False)
@@ -46,8 +45,10 @@ def calculate_accuracy(checkpoint, test_fold):
         print("Train Accuracy:", train_accuracy)
 
 
-if __name__ == '__main__':
-    calculate_accuracy(**vars(args))
+calculate_accuracy("checkpoints.ckpt-32128", 1)
 
+# if __name__ == '__main__':
+#   args = parser.parse_args()
+# calculate_accuracy(**vars(args))
 
 # argmax, top5 = make_prediction("esc50/audio/2-119161-C-8.wav", "/checkpoint.ckpt-12500", 1)

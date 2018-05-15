@@ -1,10 +1,9 @@
-import os
 
 import tensorflow as tf
 import numpy as np
 import utils
 
-from vggish import vggish_input, vggish_params
+from vggish import vggish_params
 from vggish import vggish_slim
 import params
 
