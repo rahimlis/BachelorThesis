@@ -48,14 +48,17 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            # fc = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=num_units,
-            #                                        activation_fn=tf.nn.sigmoid)
+            fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
+                                                    activation_fn=tf.nn.relu, name="fc1")
+
+            fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
+                                                    activation_fn=tf.nn.sigmoid, name="fc2")
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
 
             logits = tf.contrib.layers.fully_connected(
-                embeddings, params.NUM_CLASSES, activation_fn=None, scope='logits')
+                fc2, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
@@ -97,7 +100,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
           save_checkpoint=True):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.001)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.0001)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
