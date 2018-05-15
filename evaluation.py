@@ -45,7 +45,7 @@ def calculate_accuracy(checkpoint, test_fold):
         print("Train Accuracy:", train_accuracy)
 
 
-calculate_accuracy("checkpoints.ckpt-32128", 1)
+calculate_accuracy("/checkpoints.ckpt-32128", 1)
 
 # if __name__ == '__main__':
 #   args = parser.parse_args()
