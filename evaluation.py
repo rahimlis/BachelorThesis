@@ -1,16 +1,15 @@
 import numpy as np
 import tensorflow as tf
-
+import argparse
 import params
 from train_network import model
 from vggish import vggish_params
 
-import argparse
 
 parser = argparse.ArgumentParser(description='Read model and calculate accuracy on test set')
-parser.add_argument('--checkpoint', type=str, help='Trained model checkpoint')
-parser.add_argument('--test_fold', type=int, help='Number of test fold')
-
+parser.add_argument('checkpoint', type=str, help='Trained model checkpoint')
+parser.add_argument('tfold', type=int, help='Number of test fold')
+args = parser.parse_args()
 
 def calculate_accuracy(checkpoint, test_fold):
     graph, prediction, softmax_prediction = model(False)
@@ -48,7 +47,6 @@ def calculate_accuracy(checkpoint, test_fold):
 
 
 if __name__ == '__main__':
-    args = parser.parse_args()
     calculate_accuracy(**vars(args))
 
 
