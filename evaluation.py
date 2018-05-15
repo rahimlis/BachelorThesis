@@ -39,7 +39,7 @@ def calculate_accuracy(checkpoint, test_fold):
         accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
         test_accuracy = accuracy.eval({features_tensor: test_data, labels_tensor: test_labels})
-        train_accuracy = accuracy.eval({features_tensor: train_data, labels_tensor: train_labels})
+        #train_accuracy = accuracy.eval({features_tensor: train_data, labels_tensor: train_labels})
 
         print("Test Accuracy:", test_accuracy)
         print("Train Accuracy:", train_accuracy)
