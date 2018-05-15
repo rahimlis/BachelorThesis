@@ -12,7 +12,7 @@ flags = tf.app.flags
 slim = tf.contrib.slim
 
 flags.DEFINE_boolean(
-    'train_vggish', False,
+    'train_vggish', True,
     'If Frue, allow VGGish parameters to change during training, thus '
     'fine-tuning VGGish. If False, VGGish parameters are fixed, thus using '
     'VGGish as a fixed feature extractor.')
