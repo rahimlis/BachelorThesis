@@ -135,7 +135,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         for epoch in range(num_epochs):
             minibatch_cost = 0.
-            batch_accuracy_average = 0.
+
             print("Epoch: %d" % epoch)
             # number of minibatches of size minibatch_size in the train set
 
@@ -157,13 +157,13 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
-                batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
-                                          labels_tensor)
-                batch_accuracy_average += batch_accuracy / num_steps
+                # batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
+                #                         labels_tensor)
+                # batch_accuracy_average += batch_accuracy / num_steps
 
             test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
-            print("batch cost: %g batch_acc: %g" % (minibatch_cost, batch_accuracy_average))
+            print("batch cost: %g" % minibatch_cost)
 
             print("test_acc: %g" % test_accuracy)
 
