@@ -49,10 +49,10 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             num_units = 100
 
             fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
-                                                    activation_fn=tf.nn.relu, name="fc1")
+                                                    activation_fn=tf.nn.relu, scope="fc1")
 
             fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
-                                                    activation_fn=tf.nn.sigmoid, name="fc2")
+                                                    activation_fn=tf.nn.sigmoid, scope="fc2")
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
