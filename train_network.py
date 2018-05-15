@@ -1,8 +1,10 @@
+import os
+
 import tensorflow as tf
 import numpy as np
 import utils
 
-from vggish import vggish_params
+from vggish import vggish_input, vggish_params
 from vggish import vggish_slim
 import params
 
@@ -133,6 +135,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         for epoch in range(num_epochs):
             minibatch_cost = 0.
+            batch_accuracy_average = 0.
             print("Epoch: %d" % epoch)
             # number of minibatches of size minibatch_size in the train set
 
@@ -154,23 +157,29 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
-            correct_prediction = tf.equal(prediction_op, tf.argmax(minibatch_Y, 1))
-            # Calculate accuracy on the test set
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"), name="batch_accuracy")
+                batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
+                                          labels_tensor)
+                batch_accuracy_average += batch_accuracy / num_steps
 
-            variable_summaries(accuracy)
+            test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
-            batch_accuracy = accuracy.eval({features_tensor: minibatch_X, labels_tensor: minibatch_Y})
-            test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
+            print("batch cost: %g batch_acc: %g" % (minibatch_cost, batch_accuracy_average))
 
-            print("batch cost: %g batch_acc: %g" % (minibatch_cost, batch_accuracy))
-            print("test_acc: %g" % (test_accuracy))
+            print("test_acc: %g" % test_accuracy)
 
             if save_checkpoint and epoch % 100 == 0:
                 saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
                 print("Checkpoint saved")
 
         print("Training has finished!")
+
+
+def calc_acc(prediction_op, input_x, input_y, name, features_tensor, labels_tensor):
+    correct_prediction = tf.equal(prediction_op, tf.argmax(input_y, 1))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"), name=name)
+    variable_summaries(accuracy)
+    t_accuracy = accuracy.eval({features_tensor: input_x, labels_tensor: input_y})
+    return t_accuracy
 
 
 def main():
@@ -182,7 +191,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 601)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 301)
 
 
 if __name__ == '__main__':
