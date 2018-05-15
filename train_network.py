@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 import numpy as np
 import utils
@@ -157,13 +156,15 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
             correct_prediction = tf.equal(prediction_op, tf.argmax(minibatch_Y, 1))
             # Calculate accuracy on the test set
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"),name="batch_accuracy")
+            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"), name="batch_accuracy")
 
             variable_summaries(accuracy)
 
             batch_accuracy = accuracy.eval({features_tensor: minibatch_X, labels_tensor: minibatch_Y})
+            test_accuracy = accuracy.eval({features_tensor: X_test, labels_tensor: Y_test})
 
             print("batch cost: %g batch_acc: %g" % (minibatch_cost, batch_accuracy))
+            print("test_acc: %g" % (test_accuracy))
 
             if save_checkpoint and epoch % 100 == 0:
                 saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
@@ -181,7 +182,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 301)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 601)
 
 
 if __name__ == '__main__':
