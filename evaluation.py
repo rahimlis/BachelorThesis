@@ -42,7 +42,7 @@ def calculate_accuracy(checkpoint, test_fold):
         #train_accuracy = accuracy.eval({features_tensor: train_data, labels_tensor: train_labels})
 
         print("Test Accuracy:", test_accuracy)
-        print("Train Accuracy:", train_accuracy)
+        #print("Train Accuracy:", train_accuracy)
 
 
 calculate_accuracy("/checkpoint.ckpt-32128", 1)
