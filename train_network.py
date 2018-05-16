@@ -100,7 +100,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
           save_checkpoint=True):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.0001)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.001)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
