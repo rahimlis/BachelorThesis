@@ -63,7 +63,7 @@ def define_vggish_slim(training=False):
   # - All activations are ReLU.
   # - All convolutions are 3x3 with stride 1 and SAME padding.
   # - All max-pools are 2x2 with stride 2 and SAME padding.
-  with slim.arg_scope([slim.conv2d, slim.fully_connected],
+  with slim.arg_scope([slim.conv2d],
                       weights_initializer=tf.truncated_normal_initializer(
                           stddev=params.INIT_STDDEV),
                       biases_initializer=tf.zeros_initializer(),
