@@ -68,7 +68,7 @@ def define_vggish_slim(training=False):
                           stddev=params.INIT_STDDEV),
                       biases_initializer=tf.zeros_initializer(),
                       activation_fn=tf.nn.relu,
-                      trainable=True), \
+                      trainable=training), \
        slim.arg_scope([slim.fully_connected],
                       weights_initializer=tf.truncated_normal_initializer(
                           stddev=params.INIT_STDDEV),
@@ -99,7 +99,7 @@ def define_vggish_slim(training=False):
 
     # Flatten before entering fully-connected layers
     net = slim.flatten(net)
-    net = slim.repeat(net, 2, slim.fully_connected, 4096, scope='fc1')
+    net = slim.repeat(net, 2, slim.fully_connected, 1024, scope='fc1')
     # The embedding layer.
     net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope='fc2')
     return tf.identity(net, name='embedding')
