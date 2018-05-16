@@ -12,7 +12,7 @@ flags = tf.app.flags
 slim = tf.contrib.slim
 
 flags.DEFINE_boolean(
-    'train_vggish', True,
+    'train_vggish', False,
     'If Frue, allow VGGish parameters to change during training, thus '
     'fine-tuning VGGish. If False, VGGish parameters are fixed, thus using '
     'VGGish as a fixed feature extractor.')
@@ -48,17 +48,17 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
-                                                    activation_fn=tf.nn.relu, scope="fc1")
+            #fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
+            #                                       activation_fn=tf.nn.relu, scope="fc1")
 
-            fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
-                                                    activation_fn=tf.nn.sigmoid, scope="fc2")
+            #fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
+            #                                        activation_fn=tf.nn.sigmoid, scope="fc2")
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
 
             logits = tf.contrib.layers.fully_connected(
-                fc2, params.NUM_CLASSES, activation_fn=None, scope='logits')
+                embeddings, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
@@ -78,7 +78,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
                     tf.float32, shape=(None, params.NUM_CLASSES), name='labels')
 
                 # Cross-entropy label loss.
-                xent = tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=labels, name='xent')
+                xent = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=labels, name='xent')
                 loss = tf.reduce_mean(xent, name='loss_op')
                 tf.summary.scalar('loss', loss)
                 variable_summaries(loss)
