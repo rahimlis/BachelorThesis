@@ -48,10 +48,10 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            #fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
+            # fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
             #                                       activation_fn=tf.nn.relu, scope="fc1")
 
-            #fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
+            # fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
             #                                        activation_fn=tf.nn.sigmoid, scope="fc2")
 
             # Add a classifier layer at the end, consisting of parallel logistic
@@ -100,7 +100,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
           save_checkpoint=True):
     m = X_train.shape[0]
 
-    graph, prediction_op, softmax_prediction = model(learning_rate=0.001)
+    graph, prediction_op, softmax_prediction = model(learning_rate=0.005)
 
     # Define a shallow classification model and associated training ops on top
     # of VGGish.
@@ -138,7 +138,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
         for epoch in range(num_epochs):
             minibatch_cost = 0.
-
+            batch_accuracy_average = 0
             print("Epoch: %d" % epoch)
             # number of minibatches of size minibatch_size in the train set
 
@@ -160,13 +160,13 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
-                # batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
-                #                         labels_tensor)
-                # batch_accuracy_average += batch_accuracy / num_steps
+                batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
+                                          labels_tensor)
+                batch_accuracy_average += batch_accuracy / num_steps
 
             test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
-            print("batch cost: %g" % minibatch_cost)
+            print("batch cost: %g batch_acc %g" % (minibatch_cost, batch_accuracy_average))
 
             print("test_acc: %g" % test_accuracy)
 
