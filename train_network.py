@@ -162,7 +162,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
                 batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
                                           labels_tensor)
-                batch_accuracy_average += batch_accuracy / num_steps
+                batch_accuracy_average += batch_accuracy / num_minibatches
 
             test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
