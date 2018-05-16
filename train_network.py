@@ -194,7 +194,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 1401)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 1401, save_checkpoint=False)
 
 
 if __name__ == '__main__':
