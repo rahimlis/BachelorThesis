@@ -94,8 +94,10 @@ def define_vggish_slim(training=False):
     # Flatten before entering fully-connected layers
     net = slim.flatten(net)
 
-    net = slim.fully_connected(net, 1024, scope='fc1')
+    net = slim.fully_connected(net, 1024, scope='fc1_1')
     net = slim.dropout(net, scope='fc1_dropout')
+    net = slim.fully_connected(net, 1024, scope='fc1_2')
+    net = slim.dropout(net, scope='fc2_dropout')
     #net = slim.fully_connected(net, 1024, scope='fc1_2')
     #net = slim.dropout(net, scope='fc1_2_dropout')
     # The embedding layer.
