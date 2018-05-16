@@ -63,7 +63,7 @@ def define_vggish_slim(training=False):
   # - All activations are ReLU.
   # - All convolutions are 3x3 with stride 1 and SAME padding.
   # - All max-pools are 2x2 with stride 2 and SAME padding.
-  with slim.arg_scope([slim.conv2d],
+  with slim.arg_scope([slim.conv2d, slim.fully_connected],
                       weights_initializer=tf.truncated_normal_initializer(
                           stddev=params.INIT_STDDEV),
                       biases_initializer=tf.zeros_initializer(),
@@ -93,13 +93,7 @@ def define_vggish_slim(training=False):
 
     # Flatten before entering fully-connected layers
     net = slim.flatten(net)
-
-    net = slim.fully_connected(net, 4096, scope='fc1_1')
-    net = slim.dropout(net, scope='fc1_dropout')
-    net = slim.fully_connected(net, 4096, scope='fc1_2')
-    net = slim.dropout(net, scope='fc2_dropout')
-    #net = slim.fully_connected(net, 1024, scope='fc1_2')
-    #net = slim.dropout(net, scope='fc1_2_dropout')
+    net = slim.repeat(net, 2, slim.fully_connected, 4096, scope='fc1')
     # The embedding layer.
     net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope='fc2')
     return tf.identity(net, name='embedding')
