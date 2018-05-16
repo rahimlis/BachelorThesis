@@ -68,7 +68,7 @@ def define_vggish_slim(training=False):
                           stddev=params.INIT_STDDEV),
                       biases_initializer=tf.zeros_initializer(),
                       activation_fn=tf.nn.relu,
-                      trainable=training), \
+                      trainable=True), \
        slim.arg_scope([slim.fully_connected],
                       weights_initializer=tf.truncated_normal_initializer(
                           stddev=params.INIT_STDDEV),
