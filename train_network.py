@@ -159,13 +159,14 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
                 if epoch % 10 == 0:
                     batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
-                                              features_tensor, labels_tensor)
+                                              features_tensor, labels_tensor, sess)
                     batch_accuracy_average += batch_accuracy / num_minibatches
 
                 summary_writer.add_summary(summary_str, num_steps)
                 summary_writer.flush()
 
-            test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
+            test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor,
+                                     sess)
 
             print("batch cost: %g" % minibatch_cost)
 
@@ -181,11 +182,11 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         print("Training has finished!")
 
 
-def calc_acc(prediction_op, input_x, input_y, name, features_tensor, labels_tensor):
+def calc_acc(prediction_op, input_x, input_y, name, features_tensor, labels_tensor, sess):
     correct_prediction = tf.equal(prediction_op, tf.argmax(input_y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"), name=name)
     variable_summaries(accuracy)
-    t_accuracy = accuracy.eval({features_tensor: input_x, labels_tensor: input_y})
+    t_accuracy = accuracy.eval({features_tensor: input_x, labels_tensor: input_y}, sess)
     return t_accuracy
 
 
