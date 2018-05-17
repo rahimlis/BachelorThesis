@@ -48,17 +48,17 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=1024,
-                                                    activation_fn=tf.nn.relu, scope="fc1")
+            # fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=4096,
+            #                                       activation_fn=tf.nn.relu, scope="fc1")
 
-            fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
-                                                    activation_fn=tf.nn.relu, scope="fc2")
+            # fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
+            #                                        activation_fn=tf.nn.sigmoid, scope="fc2")
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
 
             logits = tf.contrib.layers.fully_connected(
-                fc2, params.NUM_CLASSES, activation_fn=None, scope='logits')
+                embeddings, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
@@ -150,33 +150,27 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
 
-                summary = tf.summary.merge_all()
-
                 [summary_str, num_steps, loss, _] = sess.run(
                     [summary, global_step_tensor, loss_tensor, train_op],
                     feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
 
-                minibatch_cost += loss / num_minibatches
-                print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
-
-                if epoch % 10 == 0:
-                    batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
-                                              features_tensor, labels_tensor)
-                    batch_accuracy_average += batch_accuracy / num_minibatches
-
                 summary_writer.add_summary(summary_str, num_steps)
                 summary_writer.flush()
 
+                minibatch_cost += loss / num_minibatches
+                print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
+
+                batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
+                                          labels_tensor)
+                batch_accuracy_average += batch_accuracy / num_minibatches
+
             test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
-            print("batch cost: %g" % minibatch_cost)
-
-            if epoch % 10 == 0:
-                print("batch accuracy: %g" % batch_accuracy_average)
+            print("batch cost: %g batch_acc %g" % (minibatch_cost, batch_accuracy_average))
 
             print("test_acc: %g" % test_accuracy)
 
-            if save_checkpoint and epoch > 0 and epoch % 200 == 0:
+            if save_checkpoint and epoch % 100 == 0:
                 saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
                 print("Checkpoint saved")
 
@@ -200,7 +194,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 1401)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 1401, save_checkpoint=False)
 
 
 if __name__ == '__main__':

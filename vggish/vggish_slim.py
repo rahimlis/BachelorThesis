@@ -99,9 +99,9 @@ def define_vggish_slim(training=False):
 
     # Flatten before entering fully-connected layers
     net = slim.flatten(net)
-    #net = slim.repeat(net, 2, slim.fully_connected, 1024, scope='fc1')
+    net = slim.repeat(net, 2, slim.fully_connected, 1024, scope='fc1')
     # The embedding layer.
-    #net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope='fc2')
+    net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope='fc2')
     return tf.identity(net, name='embedding')
 
 
