@@ -48,17 +48,19 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=1024,
+            conv1 = slim.conv2d(embeddings, 1024, scope="conv1")
+
+            pool1 = slim.avg_pool2d(conv1, scope='pool1')
+
+            fc1 = tf.contrib.layers.fully_connected(inputs=pool1, num_outputs=512,
                                                     activation_fn=None, scope="fc1")
 
-            bn1 = tf.layers.batch_normalization(fc1, 1,name="batch_norm_1")
+            bn1 = tf.layers.batch_normalization(fc1, 1, name="batch_norm_1")
 
             fc2 = tf.contrib.layers.fully_connected(inputs=bn1, num_outputs=vggish_params.EMBEDDING_SIZE,
                                                     activation_fn=tf.nn.relu, scope="fc2")
 
-
-            bn2 = tf.layers.batch_normalization(fc2, 1,name="batch_norm_2")
-
+            bn2 = tf.layers.batch_normalization(fc2, 1, name="batch_norm_2")
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
