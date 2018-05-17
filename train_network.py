@@ -177,7 +177,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
             print("test_acc: %g" % test_accuracy)
 
-            if save_checkpoint and epoch % 100 == 0:
+            if save_checkpoint and epoch % 200 == 0 and epoch > 0:
                 saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
                 print("Checkpoint saved")
 
