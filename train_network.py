@@ -49,8 +49,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             num_units = 100
 
             fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=1024,
-                                                   activation_fn=tf.nn.relu, scope="fc1")
-
+                                                    activation_fn=tf.nn.relu, scope="fc1")
 
             fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
                                                     activation_fn=tf.nn.relu, scope="fc2")
@@ -161,13 +160,18 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
-                batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
-                                          labels_tensor)
-                batch_accuracy_average += batch_accuracy / num_minibatches
+                if epoch % 10 == 0:
+                    batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
+                                              features_tensor,
+                                              labels_tensor)
+                    batch_accuracy_average += batch_accuracy / num_minibatches
 
             test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
-            print("batch cost: %g batch_acc %g" % (minibatch_cost, batch_accuracy_average))
+            print("batch cost: %g" % minibatch_cost)
+
+            if epoch % 10 == 0:
+                print("batch accuracy: %g" % batch_accuracy_average)
 
             print("test_acc: %g" % test_accuracy)
 
