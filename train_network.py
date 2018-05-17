@@ -150,19 +150,20 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
 
-                [summary_str, num_steps, loss, _] = sess.run(
-                    [summary, global_step_tensor, loss_tensor, train_op],
+                [num_steps, loss, _] = sess.run(
+                    [global_step_tensor, loss_tensor, train_op],
                     feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
 
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
                 if epoch % 10 == 0:
-                    batch_accuracy = calc_acc(sess, prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
-                                              features_tensor,
-                                              labels_tensor)
+                    batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
+                                              features_tensor, labels_tensor)
                     batch_accuracy_average += batch_accuracy / num_minibatches
 
+                summary = tf.summary.merge_all()
+                summary_str = sess.run(summary)
                 summary_writer.add_summary(summary_str, num_steps)
                 summary_writer.flush()
 
@@ -183,12 +184,11 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         print("Training has finished!")
 
 
-def calc_acc(sess, prediction_op, input_x, input_y, name, features_tensor, labels_tensor):
+def calc_acc(prediction_op, input_x, input_y, name, features_tensor, labels_tensor):
     correct_prediction = tf.equal(prediction_op, tf.argmax(input_y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"), name=name)
     variable_summaries(accuracy)
-    summary = tf.summary.merge_all()
-    summary_s, t_accuracy = sess.run([summary, accuracy], feed_dict={features_tensor: input_x, labels_tensor: input_y})
+    t_accuracy = accuracy.eval({features_tensor: input_x, labels_tensor: input_y})
     return t_accuracy
 
 
