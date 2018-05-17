@@ -150,8 +150,6 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
 
-                summary = tf.summary.merge_all()
-
                 [summary_str, num_steps, loss, _] = sess.run(
                     [summary, global_step_tensor, loss_tensor, train_op],
                     feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
@@ -161,8 +159,7 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
 
                 if epoch % 10 == 0:
                     batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
-                                              features_tensor,
-                                              labels_tensor)
+                                              features_tensor, labels_tensor)
                     batch_accuracy_average += batch_accuracy / num_minibatches
 
                 summary_writer.add_summary(summary_str, num_steps)
