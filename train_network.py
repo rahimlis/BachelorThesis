@@ -49,16 +49,22 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             num_units = 100
 
             fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=1024,
-                                                    activation_fn=tf.nn.relu, scope="fc1")
+                                                    activation_fn=None, scope="fc1")
 
-            fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
+            bn1 = tf.layers.batch_normalization(fc1, 1,name="batch_norm_1")
+
+            fc2 = tf.contrib.layers.fully_connected(inputs=bn1, num_outputs=vggish_params.EMBEDDING_SIZE,
                                                     activation_fn=tf.nn.relu, scope="fc2")
+
+
+            bn2 = tf.layers.batch_normalization(fc2, 1,name="batch_norm_2")
+
 
             # Add a classifier layer at the end, consisting of parallel logistic
             # classifiers, one per class. This allows for multi-class tasks.
 
             logits = tf.contrib.layers.fully_connected(
-                fc2, params.NUM_CLASSES, activation_fn=None, scope='logits')
+                bn2, params.NUM_CLASSES, activation_fn=None, scope='logits')
 
             prediction = tf.argmax(logits, axis=1, name='prediction')
 
