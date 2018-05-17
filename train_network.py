@@ -48,9 +48,9 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             # Add a fully connected layer with 100 units.
             num_units = 100
 
-            conv1 = slim.conv2d(embeddings, 1024, scope="conv1")
+            conv1 = slim.conv2d(embeddings, 1024, scope="conv1",kernel_size=[3, 3], stride=1, padding='SAME')
 
-            pool1 = slim.avg_pool2d(conv1, scope='pool1')
+            pool1 = slim.avg_pool2d(conv1, scope='pool1',kernel_size=[2, 2], stride=2, padding='SAME')
 
             fc1 = tf.contrib.layers.fully_connected(inputs=pool1, num_outputs=512,
                                                     activation_fn=None, scope="fc1")
