@@ -49,8 +49,7 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
             num_units = 100
 
             fc1 = tf.contrib.layers.fully_connected(inputs=embeddings, num_outputs=1024,
-                                                   activation_fn=tf.nn.relu, scope="fc1")
-
+                                                    activation_fn=tf.nn.relu, scope="fc1")
 
             fc2 = tf.contrib.layers.fully_connected(inputs=fc1, num_outputs=vggish_params.EMBEDDING_SIZE,
                                                     activation_fn=tf.nn.relu, scope="fc2")
@@ -155,34 +154,41 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
                     [summary, global_step_tensor, loss_tensor, train_op],
                     feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
 
-                summary_writer.add_summary(summary_str, num_steps)
-                summary_writer.flush()
-
                 minibatch_cost += loss / num_minibatches
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
-                batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy", features_tensor,
-                                          labels_tensor)
-                batch_accuracy_average += batch_accuracy / num_minibatches
+                if epoch % 10 == 0:
+                    batch_accuracy = calc_acc(sess, prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
+                                              features_tensor,
+                                              labels_tensor)
+                    batch_accuracy_average += batch_accuracy / num_minibatches
+
+
+                summary_writer.add_summary(summary_str, num_steps)
+                summary_writer.flush()
 
             test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor)
 
-            print("batch cost: %g batch_acc %g" % (minibatch_cost, batch_accuracy_average))
+            print("batch cost: %g" % minibatch_cost)
+
+            if epoch % 10 == 0:
+                print("batch accuracy: %g" % batch_accuracy_average)
 
             print("test_acc: %g" % test_accuracy)
 
-            if save_checkpoint and epoch % 100 == 0:
+            if save_checkpoint and epoch > 0 and epoch % 200 == 0:
                 saver.save(sess, params.CHECKPOINT_FOLDER + str(test_fold) + "/checkpoint.ckpt", num_steps)
                 print("Checkpoint saved")
 
         print("Training has finished!")
 
 
-def calc_acc(prediction_op, input_x, input_y, name, features_tensor, labels_tensor):
+def calc_acc(sess, prediction_op, input_x, input_y, name, features_tensor, labels_tensor):
     correct_prediction = tf.equal(prediction_op, tf.argmax(input_y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"), name=name)
     variable_summaries(accuracy)
-    t_accuracy = accuracy.eval({features_tensor: input_x, labels_tensor: input_y})
+    summary = tf.summary.merge_all()
+    summary_s, t_accuracy = sess.run([summary, accuracy], feed_dict={features_tensor: input_x, labels_tensor: input_y})
     return t_accuracy
 
 
@@ -195,7 +201,7 @@ def main():
     test_data = np.load("dataset/test_data_fold_" + str(test_fold) + ".npy")
     test_labels = np.load("dataset/test_labels_fold_" + str(test_fold) + ".npy")
 
-    train(train_data, train_labels, test_data, test_labels, test_fold, 1401, save_checkpoint=False)
+    train(train_data, train_labels, test_data, test_labels, test_fold, 1401)
 
 
 if __name__ == '__main__':
