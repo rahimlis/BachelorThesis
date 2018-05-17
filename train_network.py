@@ -52,6 +52,8 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
 
             pool1 = slim.avg_pool2d(conv1, scope='pool1',kernel_size=[2, 2], stride=2, padding='SAME')
 
+            pool1 = slim.flatten(pool1)
+
             fc1 = tf.contrib.layers.fully_connected(inputs=pool1, num_outputs=512,
                                                     activation_fn=None, scope="fc1")
 
