@@ -123,7 +123,9 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         # Locate all the tensors and ops we need for the training loop.
         features_tensor = sess.graph.get_tensor_by_name(vggish_params.INPUT_TENSOR_NAME)
         labels_tensor = sess.graph.get_tensor_by_name('mymodel/train/labels:0')
-        accuracy_tensor = sess.graph.get_tensor_by_name('mymodel/accuracy/labels:0')
+
+        accuracy_tensor = sess.graph.get_tensor_by_name('mymodel/accuracy/accuracy:0')
+
         global_step_tensor = sess.graph.get_tensor_by_name('mymodel/train/global_step:0')
         loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
 
