@@ -98,7 +98,7 @@ def define_vggish_slim(training=False):
     net = slim.max_pool2d(net, scope='pool4')
 
     # Flatten before entering fully-connected layers
-    net = slim.flatten(net)
+    #net = slim.flatten(net)
     #net = slim.repeat(net, 2, slim.fully_connected, 1024, scope='fc1')
     # The embedding layer.
     #net = slim.fully_connected(net, params.EMBEDDING_SIZE, scope='fc2')
