@@ -93,6 +93,14 @@ def model(learning_rate=vggish_params.LEARNING_RATE, training=FLAGS.train_vggish
                 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate, epsilon=vggish_params.ADAM_EPSILON)
                 optimizer.minimize(loss, global_step=global_step, name='train_op')
 
+            with tf.variable_scope("accuracy"):
+                with tf.variable_scope("correct_prediction"):
+                    correct_prediction = tf.equal(prediction, tf.argmax(labels, 1))
+                with tf.variable_scope("accuracy"):
+                    accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
+            tf.summary.scalar("accuracy", accuracy)
+
     return graph, prediction, softmax_prediction
 
 
@@ -115,15 +123,18 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
         # Locate all the tensors and ops we need for the training loop.
         features_tensor = sess.graph.get_tensor_by_name(vggish_params.INPUT_TENSOR_NAME)
         labels_tensor = sess.graph.get_tensor_by_name('mymodel/train/labels:0')
+        accuracy_tensor = sess.graph.get_tensor_by_name('mymodel/accuracy/labels:0')
         global_step_tensor = sess.graph.get_tensor_by_name('mymodel/train/global_step:0')
         loss_tensor = sess.graph.get_tensor_by_name('mymodel/train/loss_op:0')
-        all_tensors = [n.name for n in tf.get_default_graph().as_graph_def().node]
 
         train_op = sess.graph.get_operation_by_name('mymodel/train/train_op')
 
         # Init summary writer
-        summary = tf.summary.merge_all()
-        summary_writer = tf.summary.FileWriter("./logs/train/fold_" + str(test_fold), sess.graph)
+        merged = tf.summary.merge_all()
+
+        train_writer = tf.summary.FileWriter("./logs/train/fold_" + str(test_fold), sess.graph)
+
+        test_writer = tf.summary.FileWriter("./logs/test/fold_" + str(test_fold), sess.graph)
 
         # Init checkpoint saver
         saver = tf.train.Saver()
@@ -150,23 +161,26 @@ def train(X_train, Y_train, X_test, Y_test, test_fold, num_epochs=100, minibatch
             for minibatch in minibatches:
                 (minibatch_X, minibatch_Y) = minibatch
 
-                [summary_str, num_steps, loss, _] = sess.run(
-                    [summary, global_step_tensor, loss_tensor, train_op],
+                [summary_train, num_steps, loss, _] = sess.run(
+                    [merged, global_step_tensor, loss_tensor, train_op],
                     feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
 
                 minibatch_cost += loss / num_minibatches
+
                 print('Step %d: loss %g minibatch_cost: %g' % (num_steps, loss, minibatch_cost))
 
                 if epoch % 10 == 0:
-                    batch_accuracy = calc_acc(prediction_op, minibatch_X, minibatch_Y, "batch_accuracy",
-                                              features_tensor, labels_tensor, sess)
-                    batch_accuracy_average += batch_accuracy / num_minibatches
+                    accuracy = sess.run(accuracy_tensor,
+                                        feed_dict={features_tensor: minibatch_X, labels_tensor: minibatch_Y})
+                    batch_accuracy_average += accuracy / num_minibatches
 
-                summary_writer.add_summary(summary_str, num_steps)
-                summary_writer.flush()
+                train_writer.add_summary(summary_train, num_steps)
+                train_writer.flush()
 
-            test_accuracy = calc_acc(prediction_op, X_test, Y_test, "test_accuracy", features_tensor, labels_tensor,
-                                     sess)
+            summary_test, test_accuracy = sess.run([merged, accuracy_tensor],
+                                                   feed_dict={features_tensor: X_test, labels_tensor: Y_test})
+
+            test_writer.add_summary(summary_test, num_steps)
 
             print("batch cost: %g" % minibatch_cost)
 
