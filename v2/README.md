@@ -1,20 +1,22 @@
-## Details "Knowledge Transfer From Weakly Labeled Audio Using Convolutional Neural Network For Sound Events And Scenes" Anurag Kumar, Maksim Khadkevich, Christian Fügen 
-## ICASSP 2018
+## Sound classification based on transfer of knowledge using weakly labeled audio 
 
-### https://arxiv.org/pdf/1711.01369.pdf
+###Extraction of useful infromation from sounds
+For the purposes of this thesis, mel spectrogram of the sounds was used as a source of descriptive information about the sounds. The spectrograms are extracted using [librosa](https://github.com/librosa/librosa) melspectrogram function. The details can be found in ***feat_extractor.py*** 
 
-## Check out this webpage "http://www.cs.cmu.edu/~alnu/TLWeak.htm" for more results and details
+###Transfer learning
+Extracted spectrograms are passed to a deep model pretrained on [AudioSet](https://research.google.com/audioset/) to produce embeddings. Image below demonstrates the network architecture of deep feature extractor.  
+![Architecture](assets/feature_extractor_weak_label.PNG)
+B1-B5 are convolutional blocks containing 2 conv layers with batch norm and Relu followed by Max Pooling. Similarly, B6 and F1 are single convolutional layers with Batch Norm, with the distinction of final max pooling layer in case of B6.  Following layers are omitted for the purpose of training the classifier. 
 
-### This code provides the  bare minimum to obtain audio representations using Deep CNN models trained on weakly labeled data (Audioset - Balanced set)
+###Classifier layers
+![Architecture](assets/transfer_learning_model.PNG)
 
-#### 1. call the main function in feat_extractor - returns 1024 or 527 dimensional features
+###Training results
+![Architecture](assets/cost_wla.png)
 
-#### 2. It will work with audio of any duration but I would suggest to pad it to make it at least 1.5 seconds for now. 
+###Testing results
 
-#### 3. You can turn on gpu use by 'usegpu' variable. Although, for very long audio (more than a few minutes) you might end up getting gpu memory error. 
+![Architecture](assets/training_F1_with_512.png)
 
-#### The trained CNN is used to learn meaningful representations for a given audio recording. The classification task can be done by training another classifier on these representations (linear SVMs in this case). 
-
-#### 4. class names and id in classes_id_name.txt for the 527 sounds in audioset over which the model was trained. 
-
-#### 6. Doubts??? -  send me an email. 
+##References
+#### https://arxiv.org/pdf/1711.01369.pdf

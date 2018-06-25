@@ -1,6 +1,4 @@
 import numpy as np
-import scipy as scp
-import scipy.io
 import tensorflow as tf
 from v2 import utils
 from v2 import params
@@ -85,7 +83,7 @@ def get_model():
 
 
 def train(train_features, train_labels, test_features, test_labels,
-          learning_rate=0.0002, num_epochs=60, mini_batch_size=128, test_fold=5, make_logs=True, save_checkpoint=True):
+          learning_rate=0.0002, num_epochs=60, mini_batch_size=128, test_fold=5, make_logs=True, save_checkpoint=False):
     graph = tf.Graph()
 
     with graph.as_default():
@@ -206,4 +204,4 @@ def train_all_folds():
 
 
 if __name__ == '__main__':
-    avg = train_fold(params.TEST_FOLD)
+    avg = train_all_folds()
